@@ -23,8 +23,22 @@
       </div>
       <button type="submit">Search</button>
     </form>
+
+    <div v-if="searchExecuted" class="results-container">
+      <div v-for="spot in campingSpots" :key="spot.id" class="result">
+        <div class="spot-details">
+          <h3>{{ spot.name }}</h3>
+          <p><strong>Location:</strong> {{ spot.location }}</p>
+          <p><strong>Available From:</strong> {{ formatDate(spot.availableFrom) }}</p>
+          <p><strong>Available Until:</strong> {{ formatDate(spot.availableUntil) }}</p>
+          <p><strong>Price per Night:</strong> ${{ spot.price }}</p>
+          <button @click="bookCampingSpot(spot)">Book Now</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
 <script>
 import axios from 'axios';
 
@@ -60,9 +74,6 @@ export default {
         console.error('Error fetching camping spots:', error);
       }
     },
-    selectCampingSpot(spot) {
-      this.selectedSpot = spot;
-    },
     async bookCampingSpot(spot) {
       try {
         const userInfo = JSON.parse(localStorage.getItem('token'));
@@ -86,18 +97,17 @@ export default {
       return new Date(date).toLocaleDateString();
     },
     calculateTotalPrice(pricePerNight, startDate, endDate) {
-      // Calculate number of nights
       const start = new Date(startDate);
       const end = new Date(endDate);
       const oneDay = 24 * 60 * 60 * 1000; // hours * minutes * seconds * milliseconds
-      const nights = Math.round(Math.abs((start - end) / oneDay));
+      const nights = Math.round(Math.abs((end - start) / oneDay));
 
-      // Calculate total price
       return pricePerNight * nights;
     }
   }
 };
 </script>
+
 <style scoped>
 .camping-spot-container {
   background-image: url('/src/assets/campingBackground.jpg'); /* Replace with actual image URL */
@@ -165,43 +175,41 @@ button:hover {
   background-color: #45a049;
 }
 
-ul {
-  list-style-type: none;
-  padding: 0;
+.results-container {
+  margin-top: 20px;
 }
 
-li {
-  margin-bottom: 10px;
-}
-
-li button {
-  background: rgba(0, 0, 0, 0.5);
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  color: white;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-}
-
-li button:hover {
-  background: rgba(0, 0, 0, 0.7);
-}
-
-.spot-details {
+.result {
   background: rgba(0, 0, 0, 0.5);
   padding: 20px;
   border-radius: 8px;
-  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.spot-details {
+  text-align: left;
+}
+
+.spot-details h3 {
+  margin-top: 0;
+  color: #f0ad4e;
+}
+
+.spot-details p {
+  margin: 5px 0;
 }
 
 .spot-details button {
-  margin-top: 20px;
-  background-color: #f44336;
+  background-color: #5cb85c;
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 1em;
+  border-radius: 4px;
 }
 
 .spot-details button:hover {
-  background-color: #e53935;
+  background-color: #4cae4c;
 }
 </style>
